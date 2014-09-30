@@ -8,7 +8,7 @@ My name is Earl! Sombody please take mercy and fork me into somthing better.
 You will need [rebar](https://github.com/rebar/rebar) and [relx](https://github.com/erlware/relx).
 
 # Compiling
-To compile do `erl -make`
+To compile do `cd earl; erl -make`
 
 # Build
 To build, do `make --ignore-errors` (this is a work around, some day I'll fix it)
