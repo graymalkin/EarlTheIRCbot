@@ -27,6 +27,7 @@ init({FileName}) ->
 	{ok, {State, FileName}}.
 
 stop(Server) ->
+	%% Serialise the values in the settings server and print them to a file.
 	gen_server:cast(Server, stop).
 
 getValue(Server, Name) ->

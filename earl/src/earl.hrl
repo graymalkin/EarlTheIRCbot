@@ -13,3 +13,4 @@
 -record(noVal, {name}).
 -record(retVal, {name, value}).
 -record(setVal, {name, value}).
+-record(server, {name, hostname, port, connectionPid, bufferPid, parserPid}).
