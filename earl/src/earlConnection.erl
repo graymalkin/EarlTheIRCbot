@@ -16,8 +16,9 @@ connect(Hostname, Port, Parent) ->
 % Receives data from the server and passes it to buffer
 receive_data(undefined, Socket) ->
 	receive
-		{bufferPid, ParserPid} ->
-			receive_data(ParserPid, Socket)
+		{bufferPid, BufferPid} ->
+			io:format("Connection: got buffer pid~n"),
+			receive_data(BufferPid, Socket)
 	end;
 receive_data(BufferPid, Socket) ->
 	receive

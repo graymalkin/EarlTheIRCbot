@@ -18,7 +18,7 @@
 
 -record(notice, {target, message}).
 
--record(registerPlugin, {name}).
+-record(registerPlugin, {name, state}).
 -record(deregisterPlugin, {name}).
 -record(reloadPlugin, {name}).
 
@@ -27,4 +27,3 @@
 
 % Data types
 %-record(user, {nick, username, host}).
-

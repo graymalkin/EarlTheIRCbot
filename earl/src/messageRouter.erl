@@ -25,8 +25,8 @@ parse(SendPid, PluginsNames) ->
 	%    true;
 
         % deal with registerPlugin requests by adding them to the chan list
-	#registerPlugin{name=Name} ->
-	    ?MODULE:parse(SendPid, [load(Name)|PluginsNames]);
+	#registerPlugin{name=Name, state=Args} ->
+	    ?MODULE:parse(SendPid, [load(Name, Args)|PluginsNames]);
 
 	% deregister plugins
 	#deregisterPlugin{name=Name} ->
@@ -34,6 +34,7 @@ parse(SendPid, PluginsNames) ->
 
 	T->
 	    Line = lineParse(T),
+		io:format("~p~n", [Line]),
 	    gen_event:notify(irc_messages, Line),
 
 	    % Built in commands which are required for the protocol
@@ -57,10 +58,10 @@ parse(SendPid, PluginsNames) ->
     ?MODULE:parse(SendPid, PluginsNames).
 
 
-load(Name) ->
+load(Name, Args) ->
     io:format("adding plugin '~s'~n", [Name]),
     NameAtom = list_to_atom(Name),
-    gen_event:add_handler(irc_messages, NameAtom, []),
+    gen_event:add_handler(irc_messages, NameAtom, [Args]),
     Name.
 
 unload(Name, PluginsNames) ->

@@ -1,5 +1,5 @@
 -module(earl).
--export([buffer/1, buffer/2, send/1, getLine/1]).
+-export([buffer/0, buffer/2, send/1, getLine/1]).
 -import(messageRouter, [parse/0]).
 -include("ircParser.hrl").
 -include("earl.hrl").
@@ -35,41 +35,44 @@ start(_Type, _Args) ->
 
 	gen_event:start_link({local, irc_messages}),
 	% Start the plugins
-	setup(),
+	setup(Connections),
 
-	receive
-		connected -> true
-	end,
-
-  K = earl_sup:start_link(),
-  io:format("~p~n", [K]),
-  K.
+        K = earl_sup:start_link(),
+        io:format("~p~n", [K]),
+        K.
 
 connect(ServerList) ->
-  connect(ServerList, []).
+        connect(ServerList, []).
+
 connect([], Connections) ->
-  Connections;
+        Connections;
 connect([{ServerName, HostName, Port}|Xs], Connections) ->
+        BufferPid  = spawn(?MODULE, buffer, []),
         Connection = spawn(earlConnection, connect, [HostName, Port, self()]),
         receive
                 SendPid ->
                         ParserPid = spawn(messageRouter, parse, [SendPid]),
-                        BufferPid  = spawn(?MODULE, buffer, [ParserPid]),
+                        BufferPid ! {parserPid, ParserPid},
                         Connection ! {bufferPid, BufferPid},
                         io:format("Connection:: Connecting to: ~s~n", [ServerName]),
                         connect(Xs, [#server{
                                         name=ServerName,
                                         hostname=HostName,
                                         port=Port,
-                                        connectionPid=Connection} | Connections])
+                                        connectionPid=Connection,
+                                        parserPid=ParserPid,
+                                        bufferPid=BufferPid} | Connections])
         end.
 
-setup() ->
+setup([]) -> ok;
+setup([Server|Xs]) ->
+        #server{parserPid=ParserPid} = Server,
 	% Set up admin list
-	settingsServer:setValue(settings, admins, ["graymalkin", "Tatskaari", "Mex", "xand", "Tim"]).
+	settingsServer:setValue(settings, admins, ["graymalkin", "Tatskaari", "Mex", "xand", "Tim"]),
 
 	% Send module registrations
-	% lists:foreach(fun(Plugin) -> parserPid ! #registerPlugin{name=Plugin} end, ?PLUGINS).
+	lists:foreach(fun(Plugin) -> ParserPid ! #registerPlugin{name=Plugin, state=Server} end, ?PLUGINS),
+        setup(Xs).
 
 getLine(A) ->
 	Index = string:str(A, "\n"),
@@ -81,6 +84,11 @@ getLine(A) ->
 
 
 % Builds the messages sent by the server and prints them out
+buffer() ->
+        receive
+                {parserPid, ParserPid} ->
+                        buffer(ParserPid)
+        end.
 buffer(ParserPid) ->
 	buffer(ParserPid, "").
 buffer(ParserPid, Buffer) ->
@@ -91,11 +99,12 @@ buffer(ParserPid, Buffer) ->
 					io:format("bufferPid :: EXIT~n"),
 					exit(self(), normal);
 				Bin ->
-					buffer(Buffer ++ Bin)
+					buffer(ParserPid, Buffer ++ Bin)
 			end;
 		{true, A, B} ->
+                        io:format("Got line:~n~s~nSending to parser pid...~n", [A]),
 			ParserPid ! A,
-			?MODULE:buffer(B)
+			?MODULE:buffer(ParserPid, B)
 	end.
 
 
