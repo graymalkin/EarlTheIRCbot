@@ -9,6 +9,16 @@
 Earl has most of his functionality partitioned off into submodules. There are a
 couple of essential ones, and some that are core to the IRC protocol.
 
-The TCP/IP connection is handled with \texttt{earlConnection} module.
+The TCP/IP connection is handled with \texttt{earlConnection} module. This sends
+data to a \texttt{buffer} (currenly found in the \texttt{earl} module), which
+splits raw data into lines and passed onto the \texttt{messageRouter} module.
+
+The \texttt{messageRouter} parses lines (using the \texttt{lineParse} module)
+and creates creates gen events.
+
+\subsection*{IRC Parser}
+
+The IRC parser deals with most of the IRC protocol, and does the heavy lifting
+as far as string manipulation goes.
 
 \end{document}
