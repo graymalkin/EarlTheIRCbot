@@ -1,8 +1,9 @@
 \documentclass[12pt]{article}
 
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 \begin{document}
-
-\section*{Earl Documentation}
+\input{./title.tex}
+\section*{Introduction}
 
 \subsection*{Abstract}
 
@@ -11,6 +12,10 @@ Jonathan Poole, Martin Ellis and Simon Cooksey.  His design has evolved as we've
 learned about Erlang and OTP, and will likely continue to.
 
 \subsection*{Build System}
+
+Earl uses the standard erlang build system, and relx. The erlang.mk file will
+download relx, and relx is used to generate the binary.
+
 
 \subsection*{Basic Structure}
 
@@ -28,5 +33,7 @@ and creates creates gen events.
 
 The IRC parser deals with most of the IRC protocol, and does the heavy lifting
 as far as string manipulation goes.
+
+The
 
 \end{document}
