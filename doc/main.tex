@@ -1,0 +1,39 @@
+\documentclass[12pt]{article}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\begin{document}
+\input{./title.tex}
+\section*{Introduction}
+
+\subsection*{Abstract}
+
+Earl is an open source, multi-process, extensible IRC bot writen in Erlang by
+Jonathan Poole, Martin Ellis and Simon Cooksey.  His design has evolved as we've
+learned about Erlang and OTP, and will likely continue to.
+
+\subsection*{Build System}
+
+Earl uses the standard erlang build system, and relx. The erlang.mk file will
+download relx, and relx is used to generate the binary.
+
+
+\subsection*{Basic Structure}
+
+Earl has most of his functionality partitioned off into submodules. There are a
+couple of essential ones, and some that are core to the IRC protocol.
+
+The TCP/IP connection is handled with \texttt{earlConnection} module. This sends
+data to a \texttt{buffer} (currenly found in the \texttt{earl} module), which
+splits raw data into lines and passed onto the \texttt{messageRouter} module.
+
+The \texttt{messageRouter} parses lines (using the \texttt{lineParse} module)
+and creates creates gen events.
+
+\subsection*{IRC Parser}
+
+The IRC parser deals with most of the IRC protocol, and does the heavy lifting
+as far as string manipulation goes.
+
+The
+
+\end{document}

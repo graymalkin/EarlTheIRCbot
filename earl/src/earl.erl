@@ -1,5 +1,5 @@
 -module(earl).
--export([buffer/0, buffer/1, send/1, getLine/1]).
+-export([buffer/1, buffer/2, send/1, getLine/1]).
 -import(messageRouter, [parse/0]).
 -include("ircParser.hrl").
 -include("earl.hrl").
@@ -22,10 +22,11 @@ stop(_State) ->
 % Spawns the buffer and the connections processes
 start(_Type, _Args) ->
 	% Spawn the processes for connecting and building commmands
-	register(bufferPid, spawn(earl, buffer, [])),        
-	register(connectPid, spawn(earlConnection, connect, [?HOSTNAME, ?PORT])),
-	register(parserPid, spawn(messageRouter, parse, [])),
 	register(mainPid, self()),
+
+        ServerList = [{"freenode", "irc.freenode.org", 6667}],
+        Connections = connect(ServerList),
+
 	{ok, SettingsPid} = settingsServer:start_link("settings.db"),
 	{ok, ChanInfoPid} = settingsServer:start_link(),
 	register(settings, SettingsPid),
@@ -40,18 +41,35 @@ start(_Type, _Args) ->
 		connected -> true
 	end,
 
-	% Wait until a process wants to kill the program and then tell all processes to an hero 
-        %% TODO: Move the close code into stop/1
-    K = earl_sup:start_link(),
-    io:format("~p~n", [K]),
-    K.
+  K = earl_sup:start_link(),
+  io:format("~p~n", [K]),
+  K.
+
+connect(ServerList) ->
+  connect(ServerList, []).
+connect([], Connections) ->
+  Connections;
+connect([{ServerName, HostName, Port}|Xs], Connections) ->
+        Connection = spawn(earlConnection, connect, [HostName, Port, self()]),
+        receive
+                SendPid ->
+                        ParserPid = spawn(messageRouter, parse, [SendPid]),
+                        BufferPid  = spawn(?MODULE, buffer, [ParserPid]),
+                        Connection ! {bufferPid, BufferPid},
+                        io:format("Connection:: Connecting to: ~s~n", [ServerName]),
+                        connect(Xs, [#server{
+                                        name=ServerName,
+                                        hostname=HostName,
+                                        port=Port,
+                                        connectionPid=Connection} | Connections])
+        end.
 
 setup() ->
 	% Set up admin list
-	settingsServer:setValue(settings, admins, ["graymalkin", "Tatskaari", "Mex", "xand", "Tim"]),
+	settingsServer:setValue(settings, admins, ["graymalkin", "Tatskaari", "Mex", "xand", "Tim"]).
 
 	% Send module registrations
-	lists:foreach(fun(Plugin) -> parserPid ! #registerPlugin{name=Plugin} end, ?PLUGINS).
+	% lists:foreach(fun(Plugin) -> parserPid ! #registerPlugin{name=Plugin} end, ?PLUGINS).
 
 getLine(A) ->
 	Index = string:str(A, "\n"),
@@ -63,20 +81,20 @@ getLine(A) ->
 
 
 % Builds the messages sent by the server and prints them out
-buffer() ->
-	buffer("").
-buffer(Buffer) ->
+buffer(ParserPid) ->
+	buffer(ParserPid, "").
+buffer(ParserPid, Buffer) ->
 	case getLine(Buffer) of
 		{false, _ } ->
 			receive
 				die ->
 					io:format("bufferPid :: EXIT~n"),
 					exit(self(), normal);
-				Bin -> 
+				Bin ->
 					buffer(Buffer ++ Bin)
 			end;
 		{true, A, B} ->
-			parserPid ! A,
+			ParserPid ! A,
 			?MODULE:buffer(B)
 	end.
 

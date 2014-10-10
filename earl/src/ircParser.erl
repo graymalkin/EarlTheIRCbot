@@ -68,19 +68,19 @@ lineParse(Str) ->
 	Nick = getNick(Prefix),
 	IsAdmin = isAdmin(Nick, getAdmins()),
 	case Command of
-		"PRIVMSG" -> 
+		"PRIVMSG" ->
 			Target = lists:nth(1, Params),
-			#privmsg{target=Target, from=Nick,  admin=IsAdmin, message=Trail};	     
+			#privmsg{target=Target, from=Nick,  admin=IsAdmin, message=Trail};
 		"PING" -> #ping{nonce=Trail};
 		"MODE" -> #mode{modes=Trail};
 		"NOTICE" -> #notice{target=lists:nth(1, Params), message=Trail};
 
 		% MOTD, print it and throw it away %
 		"372"  -> #motd{message=Trail};
-		
+
 		% Start of MOTD
 		"375" -> #raw{data=Str, number_code=Command};
-			
+
 		% End of MOTD
 		"376" -> #raw{data=Str, number_code=Command};
 		%welcome
@@ -118,7 +118,7 @@ lineParse(Str) ->
 		"266" -> #raw{data=Str, trail=Trail, number_code=Command};
 
 		% Channel join
-		"JOIN" -> 
+		"JOIN" ->
 			storeChanInfo(Trail, name, Trail),
 			#join{channel=Trail, nick=Nick};
 		% RPL_TOPIC
@@ -127,7 +127,7 @@ lineParse(Str) ->
 			storeChanInfo(ChannelName, topic, Trail),
 			#rpl_topic{channel=ChannelName, topic=Trail};
 		%RPL_TOPICWHOTIME
-		%"333"  -> 
+		%"333"  ->
 		%	Channel = lists:nth(2, Params), %TODO check this
 		%	SetBy = lists:nth(3, Params),
 		%	Date = msToDate(lists:nth(4, Params)),
@@ -135,7 +135,7 @@ lineParse(Str) ->
 		%PL_NAMREPLY
 		"353"  -> #raw{data=Str, trail=Trail, number_code=Command};
 		"366"  -> #raw{data=Str, trail=Trail, number_code=Command};
-	        
+
 	        % Nick
 	        "NICK" -> #nick{nick={Nick,Trail}};
 
@@ -146,12 +146,12 @@ lineParse(Str) ->
 		"QUIT" -> #quit{reason=Trail, nick=Nick};
 
 		%topic
-		"TOPIC" -> 
+		"TOPIC" ->
 			Channel = lists:nth(1, Params),
 			OldTopic = getChanInfo(Channel, topic),
 			storeChanInfo(Channel, topic, Trail),
 			#topic{channel=Channel, old_topic=OldTopic, new_topic=Trail, setby=Nick};
-		
+
 		% Nick already in use
 		"433" ->
 			#raw{data=Str, trail=Trail, number_code=Command};
@@ -186,13 +186,14 @@ getChanInfo(ChannelName, Param) ->
 
 % Thanks StackOverflow! http://stackoverflow.com/questions/825151/convert-timestamp-to-datetime-in-erlang
 msToDate(Str) ->
-	{ InS, _Rest } = string:to_integer(Str), 
+	{ InS, _Rest } = string:to_integer(Str),
 	BaseDate      = calendar:datetime_to_gregorian_seconds({{1970,1,1},{0,0,0}}),
 	Seconds       = BaseDate + InS,
 	{Date, Time}  = calendar:gregorian_seconds_to_datetime(Seconds),
 	ircTime:date_to_string({Date, Time}).
 
--ifdef(COLORS). 
+%% TODO Duplicated in logger.erl
+-ifdef(COLORS).
 % Prints a message in a given colour
 print(Catagory, Color, Message, Params) ->
 	case Color of

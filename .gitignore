@@ -3,3 +3,8 @@
 *.dump
 earl/_rel/
 earl/ebin/
+doc/*.aux
+doc/*.d
+doc/*.dvi
+doc/*.log
+doc/*.pdf
