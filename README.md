@@ -7,6 +7,10 @@ My name is Earl! Sombody please take mercy and fork me into somthing better.
 
 You will need [rebar](https://github.com/rebar/rebar) and [relx](https://github.com/erlware/relx).
 
+# Configuration
+Currently sevrers are compiled into Earl, this will change at some point, but for now the basic 
+configuration can be found `earl.hrl`, and admins are defined in `earl.erl`. 
+
 # Compiling
 To compile do `cd earl; erl -make`
 
