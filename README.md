@@ -15,3 +15,18 @@ To build, do `make --ignore-errors` (this is a work around, some day I'll fix it
 
 # Run
 To run do `./_rel/earl/bin/earl console`
+
+# Documentation
+
+To make the docs you will need a LaTeX installation. On Ubuntu do:
+    sudo apt-get install texlive
+
+Then you can do
+
+```shell
+cd doc
+make all
+```
+
+To make the docs as a pdf.
+
