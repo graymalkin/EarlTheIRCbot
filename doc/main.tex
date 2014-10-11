@@ -40,7 +40,13 @@ available in them. They are defined in \texttt{ircParser.hrl}, which should be
 included in any modules which use them. This will in all likely hood be all 
 modules.
 
-\subsection*{Modules}
+\subsection*{Message Router}
+
+The message router takes lines from the buffer, runs them through the parser 
+and then creates \texttt{gen:event}s for all the modules registered under it.
+
+This part of the application also handles PING responses, as it is core to the
+protocol to do so. 
 
 
 
