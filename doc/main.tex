@@ -1,6 +1,8 @@
 \documentclass[12pt]{article}
 
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\usepackage{listings}
+\lstset{language=erlang}
 \begin{document}
 \input{./title.tex}
 \section*{Introduction}
@@ -43,18 +45,19 @@ modules.
 \subsection*{Message Router}
 
 The message router takes lines from the buffer, runs them through the parser 
-and then creates \texttt{gen_event}s for all the modules registered under it.
+and then creates \texttt{gen\_event} s for all the modules registered under it.
 
 This part of the application also handles PING responses, as it is core to the
 protocol to do so, and it fits nicely. This is counter to the design of the 
-application though - so this may change (soon \tm).
+application though - so this may change (soon \texttrademark).
 
-%%% CODE BLOCK
+\begin{lstlisting}
 parse(SendPid, PluginsNames) ->
     receive
 	die ->
 	    io:format("parserPid :: EXIT~n"),
-	    lists:foreach(fun(Name) -> gen_event:delete_handler(irc_messages, Name, []) end, PluginsNames),
+	    lists:foreach(fun(Name) -> gen_event:delete_handler(irc_messages, 
+	    	Name, []) end, PluginsNames),
 	    exit(self(), normal);
 
     % deal with registerPlugin requests by adding them to the chan list
@@ -71,7 +74,7 @@ parse(SendPid, PluginsNames) ->
 	    % Code for pings and "#modules" command cut out
 	    end,
     ?MODULE:parse(SendPid, PluginsNames).
-%%% END CODE BLOCK
+\end{lstlisting}
 
 Plugins are in a list which is pushed around tail recursively, and is updated
 with a pair of helped functions which are called from the
