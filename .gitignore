@@ -3,6 +3,8 @@
 *.dump
 earl/_rel/
 earl/ebin/
+earl/.eunit/
+earl/relx
 doc/*.aux
 doc/*.d
 doc/*.dvi
