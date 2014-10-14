@@ -1,5 +1,7 @@
-script:
-        - cd earl
+before_install: cd earl
+install: rebar compile && rebar skip_deps=true eunit
+script: rebar eunit
+after_success: make
 
 language: erlang
 otp_release:

@@ -1,5 +1,6 @@
 EarlTheIRCbot
 =============
+[![Build Status](https://travis-ci.org/graymalkin/EarlTheIRCbot.svg)](https://travis-ci.org/graymalkin/EarlTheIRCbot)
 
 My name is Earl! Sombody please take mercy and fork me into somthing better.
 
