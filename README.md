@@ -14,6 +14,9 @@ configuration can be found `earl.hrl`, and admins are defined in `earl.erl`.
 # Compiling
 To compile do `cd earl; rebar compile`
 
+# Testing
+To run all eunit tests in the project, do `rebar eunit`
+
 # Build
 To build, do `make`. This makes an executable in `_rel` which can be ran...
 
